@@ -1,0 +1,12 @@
+Expenses Model :
+ - ID
+ - Nama Barang 
+ - Kategori Barang
+ - Waktu Pembelian
+ - Hargane Berapa
+
+Users :
+ - ID
+ - Email
+ - Username
+ - Pass
