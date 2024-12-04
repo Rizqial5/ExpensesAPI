@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using ExpenseTracker.Models;
 using SQLitePCL;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace ExpenseTracker.Controller
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ExpensesController : ControllerBase
@@ -59,7 +61,7 @@ namespace ExpenseTracker.Controller
 
             var filteredExpenses = _context.Expenses.AsQueryable();
 
-            filteredExpenses = filteredExpenses.Where(item => item.BuyDate >= startDate.Value && item.BuyDate <= endDate.Value);
+            filteredExpenses = filteredExpenses.Where(item => item.BuyDate >= startDate!.Value && item.BuyDate <= endDate!.Value);
 
             if(filteredExpenses.ToListAsync() == null)
             {

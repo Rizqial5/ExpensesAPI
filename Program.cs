@@ -1,9 +1,12 @@
 using ExpenseTracker.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using ExpenseTracker.Controllers;
 
 
 
@@ -13,6 +16,47 @@ var connectionString = builder.Configuration.GetConnectionString("ExpensesDB") ?
 
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ExpensesDB>(options => options.UseSqlite(connectionString));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ExpensesDB>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(opt => {
+
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddJwtBearer(opt => {
+
+    opt.TokenValidationParameters = new TokenValidationParameters{
+
+        ValidIssuer = "AppName",
+        ValidAudience = "AppUser",
+        IssuerSigningKey = new SymmetricSecurityKey
+            (Encoding.UTF8.GetBytes("your_very_long_secret_key_here_32_chars")),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = false,
+        ValidateIssuerSigningKey = true,
+
+
+    };
+
+    opt.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Token invalid : {context.Exception.Message}");
+            return Task.CompletedTask;
+        }
+    };
+
+    opt.SaveToken = false;
+
+});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers()
 .AddJsonOptions(options =>
@@ -44,9 +88,35 @@ builder.Services.AddSwaggerGen(options =>
 
     options.EnableAnnotations();
 
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Masukkan token JWT anda dengan format: Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer",
+                }
+            },
+            new string[] {}
+        }
+    });
+
     
 });
 
+builder.Services.AddScoped<AuthController>();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -69,6 +139,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
