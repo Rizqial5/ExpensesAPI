@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseTracker.Models
 {
@@ -9,6 +10,11 @@ namespace ExpenseTracker.Models
         public ExpensesCategory ItemCategory {get;set;}
         public DateTime BuyDate {get;set;}
         public float ItemPrice {get;set;}
+        
+        [ForeignKey("User")]
+        public string? UserId{get;set;}
+
+        public IdentityUser? User{get;set;}
         
 
     }
