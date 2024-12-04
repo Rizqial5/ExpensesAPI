@@ -41,7 +41,9 @@ namespace ExpenseTracker.Controller
         [HttpGet("{id}")]
         public async Task<ActionResult<Expenses>> GetExpenses(int id)
         {
-            var expenses = await _context.Expenses.FindAsync(id);
+            var user = await _userManager.GetUserAsync(User);
+
+            var expenses = await _context.Expenses.FirstOrDefaultAsync(e=>e.Id == id && e.UserId == user.Id);
 
             if (expenses == null)
             {
@@ -54,10 +56,13 @@ namespace ExpenseTracker.Controller
         [HttpGet("category")]
         public async Task<ActionResult<IEnumerable<Expenses>>> GetExpensesbyCategory(ExpensesCategory category)
         {
+            
+            var user = await _userManager.GetUserAsync(User);
+
 
             var filteredExpenses = _context.Expenses.AsQueryable();
 
-            filteredExpenses = filteredExpenses.Where(item => item.ItemCategory == category);
+            filteredExpenses = filteredExpenses.Where(item => item.ItemCategory == category && item.UserId == user.Id);
             
 
             return Ok(await filteredExpenses.ToListAsync()) ;
@@ -68,10 +73,10 @@ namespace ExpenseTracker.Controller
             [FromQuery, SwaggerParameter("Start Date Filter format : yyyy-mm-dd")] DateTime? startDate, 
             [FromQuery, SwaggerParameter("End Date Date Filter format : yyyy-mm-dd")] DateTime? endDate)
         {
-
+            var user = await _userManager.GetUserAsync(User);
             var filteredExpenses = _context.Expenses.AsQueryable();
 
-            filteredExpenses = filteredExpenses.Where(item => item.BuyDate >= startDate!.Value && item.BuyDate <= endDate!.Value);
+            filteredExpenses = filteredExpenses.Where(item => item.BuyDate >= startDate!.Value && item.BuyDate <= endDate!.Value && item.UserId == user.Id);
 
             if(filteredExpenses.ToListAsync() == null)
             {
@@ -85,30 +90,21 @@ namespace ExpenseTracker.Controller
         // PUT: api/Expenses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutExpenses(int? id, Expenses expenses)
+        public async Task<IActionResult> PutExpenses(int? id, Expenses updatedExpenses)
         {
-            if (id != expenses.Id)
+            var user = await _userManager.GetUserAsync(User);
+
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e=>e.Id == id && e.UserId == user.Id );
+
+            if(expense == null)
             {
-                return BadRequest();
+                return NotFound("Expense Not FOund");
             }
 
-            _context.Entry(expenses).State = EntityState.Modified;
+            expense.ItemName = updatedExpenses.ItemName;
+            expense.ItemPrice = updatedExpenses.ItemPrice;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ExpensesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -155,10 +151,7 @@ namespace ExpenseTracker.Controller
             return NoContent();
         }
 
-        private bool ExpensesExists(int? id)
-        {
-            return _context.Expenses.Any(e => e.Id == id);
-        }
+       
     }
 }
 
