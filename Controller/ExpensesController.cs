@@ -30,9 +30,11 @@ namespace ExpenseTracker.Controller
         {
             var user = await _userManager.GetUserAsync(User);
 
-            Console.WriteLine(user.UserName);
+            var expenses = _context.Expenses.Where(e=>e.UserId == user.Id).ToListAsync();
 
-            return await _context.Expenses.ToListAsync();
+            
+
+            return await expenses;
         }
 
         // GET: api/Expenses/5
@@ -116,17 +118,25 @@ namespace ExpenseTracker.Controller
         [HttpPost]
         public async Task<ActionResult<Expenses>> PostExpenses(Expenses expenses)
         {
-            nextId = _context.Expenses.ToList().Count + 1; 
+            var user = await _userManager.GetUserAsync(User);
 
-            expenses.Id = nextId;
+            
+            
+
+            expenses.UserId = user.Id;
+
+            expenses.User = null;
+            
+            Console.WriteLine(expenses.UserId);
+            
 
             _context.Expenses.Add(expenses);
 
-
+            
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetExpenses", new { id = expenses.Id }, expenses);
+            return CreatedAtAction("GetExpenses", new { id = expenses.Id, UserId = expenses.UserId.ToString() }, expenses);
         }
 
         // DELETE: api/Expenses/5
