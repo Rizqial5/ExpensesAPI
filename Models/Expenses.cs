@@ -10,11 +10,14 @@ namespace ExpenseTracker.Models
         public ExpensesCategory ItemCategory {get;set;}
         public DateTime BuyDate {get;set;}
         public float ItemPrice {get;set;}
+
         
-        [ForeignKey("User")]
+        public IdentityUser? User{get;set;}
+        
+        
         public string? UserId{get;set;}
 
-        public IdentityUser? User{get;set;}
+        
         
 
     }

@@ -41,7 +41,7 @@ namespace ExpenseTracker.Controllers
             if (result.Succeeded)
             {
                 // Generate token jika login berhasil
-                var token = GenerateJwtToken(login.Username!);
+                var token = GenerateJwtToken(user);
                 return Ok(new { Token = token });
             }
 
@@ -63,8 +63,7 @@ namespace ExpenseTracker.Controllers
                 if (result.Succeeded)
                 {
                     // Jika registrasi berhasil, login dan buat token JWT
-                    var token = GenerateJwtToken(register.Username!);
-                    return Ok(new { Token = token });
+                    return Ok("Registered Successfully");
                 }
 
                 return BadRequest(result.Errors);
@@ -74,15 +73,17 @@ namespace ExpenseTracker.Controllers
         }
 
 
-        private string GenerateJwtToken(string username)
+        private string GenerateJwtToken(IdentityUser user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_very_long_secret_key_here_32_chars"));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Role, "User")
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
             };
 
             var token = new JwtSecurityToken(

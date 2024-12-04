@@ -4,6 +4,7 @@ using ExpenseTracker.Models;
 using SQLitePCL;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace ExpenseTracker.Controller
@@ -14,16 +15,23 @@ namespace ExpenseTracker.Controller
     public class ExpensesController : ControllerBase
     {
         private readonly ExpensesDB _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        
         private int nextId;
-        public ExpensesController(ExpensesDB context)
+        public ExpensesController(ExpensesDB context, UserManager<IdentityUser> userManager )
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Expenses
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Expenses>>> GetExpenses()
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            Console.WriteLine(user.UserName);
+
             return await _context.Expenses.ToListAsync();
         }
 

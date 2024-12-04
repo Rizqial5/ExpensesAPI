@@ -17,9 +17,10 @@ namespace ExpenseTracker.Models
             base.OnModelCreating(builder);
 
             builder.Entity<Expenses>()
-                .HasOne(a => a.User)
+                .HasOne(e=>e.User)
                 .WithMany()
-                .HasForeignKey(a=>a.UserId);
+                .HasForeignKey(e=> e.UserId)
+                .IsRequired();
         }
     }
     

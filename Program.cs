@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using ExpenseTracker.Controllers;
+using ExpenseTracker.Controller;
 
 
 
@@ -117,6 +118,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddScoped<AuthController>();
+builder.Services.AddScoped<ExpensesController>();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
