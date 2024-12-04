@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ExpenseTracker.Models
 {
     public class Expenses
     {
@@ -7,6 +9,8 @@
         public ExpensesCategory ItemCategory {get;set;}
         public DateTime BuyDate {get;set;}
         public float ItemPrice {get;set;}
+        
+
     }
 
     public enum ExpensesCategory

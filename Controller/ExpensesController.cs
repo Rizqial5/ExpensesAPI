@@ -12,6 +12,7 @@ namespace ExpenseTracker.Controller
     public class ExpensesController : ControllerBase
     {
         private readonly ExpensesDB _context;
+        private int nextId;
         public ExpensesController(ExpensesDB context)
         {
             _context = context;
@@ -105,7 +106,14 @@ namespace ExpenseTracker.Controller
         [HttpPost]
         public async Task<ActionResult<Expenses>> PostExpenses(Expenses expenses)
         {
+            nextId = _context.Expenses.ToList().Count + 1; 
+
+            expenses.Id = nextId;
+
             _context.Expenses.Add(expenses);
+
+
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetExpenses", new { id = expenses.Id }, expenses);

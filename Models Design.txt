@@ -1,12 +1,13 @@
 Expenses Model :
  - ID
+ - User ID (KEY)
  - Nama Barang 
  - Kategori Barang
  - Waktu Pembelian
  - Hargane Berapa
 
 Users :
- - ID
+ - User ID (KEY)
  - Email
  - Username
  - Pass

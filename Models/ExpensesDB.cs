@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ExpenseTracker.Models
 {
-    public class ExpensesDB(DbContextOptions<ExpensesDB> options) : DbContext(options)
+    public class ExpensesDB(DbContextOptions<ExpensesDB> options) : IdentityDbContext(options)
     {
-        public DbSet<ExpenseTracker.Models.Expenses> Expenses { get; set; } = default!;
+        public DbSet<Expenses> Expenses { get; set; } = default!;
     }
     
 }
